@@ -34,18 +34,7 @@ public class Path {
         if(nodes.size()==1){
             return new Path(graph,nodes.get(0));
         }
-        List<Arc> arcs = new ArrayList<Arc>();
-        for (int i=0;i<nodes.size() - 1 ;i++) {
-            int index = i;
-            Optional<Arc> arcmin = nodes.get(i).getSuccessors().stream()
-                .filter(arc -> arc.getDestination().equals(nodes.get(index + 1)))
-                .min(Comparator.comparing(Arc::getMinimumTravelTime));
-            if (arcmin.isPresent()) {
-                arcs.add(arcmin.get());
-            } else {
-                throw new IllegalArgumentException("Liste de nodes non valide");
-            }
-        }
+        List<Arc> arcs = Path.getArcListMin(nodes, Comparator.comparing(Arc::getMinimumTravelTime));
         return new Path(graph, arcs);
     }
 
@@ -65,19 +54,25 @@ public class Path {
                 if(nodes.size()==1){
                     return new Path(graph,nodes.get(0));
                 }
-                List<Arc> arcs = new ArrayList<Arc>();
-                for (int i=0;i<nodes.size() - 1 ;i++) {
-                    int index = i;
-                    Optional<Arc> arcmin = nodes.get(i).getSuccessors().stream()
-                        .filter(arc -> arc.getDestination().equals(nodes.get(index + 1)))
-                        .min(Comparator.comparing(Arc::getLength));
-                    if (arcmin.isPresent()) {
-                        arcs.add(arcmin.get());
-                    } else {
-                        throw new IllegalArgumentException("Liste de nodes non valide");
-                    }
-                }
+                List<Arc> arcs = Path.getArcListMin(nodes, Comparator.comparing(Arc::getLength));
                 return new Path(graph, arcs);
+    }
+
+    private static  List<Arc> getArcListMin(List<Node> nodes, Comparator<Arc> comparator)
+        throws IllegalArgumentException{
+        List<Arc> arcs = new ArrayList<Arc>();
+        for (int i=0;i<nodes.size() - 1 ;i++) {
+            int index = i;
+            Optional<Arc> arcmin = nodes.get(i).getSuccessors().stream()
+                .filter(arc -> arc.getDestination().equals(nodes.get(index + 1)))
+                .min(comparator);
+            if (arcmin.isPresent()) {
+                arcs.add(arcmin.get());
+            } else {
+                throw new IllegalArgumentException("Liste de nodes non valide");
+            }
+        }
+        return arcs;
     }
 
     /**
