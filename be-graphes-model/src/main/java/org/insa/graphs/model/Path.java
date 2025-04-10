@@ -62,9 +62,9 @@ public class Path {
         throws IllegalArgumentException{
         List<Arc> arcs = new ArrayList<Arc>();
         for (int i=0;i<nodes.size() - 1 ;i++) {
-            int index = i;
+            Node compareNode = nodes.get(i+1);
             Optional<Arc> arcmin = nodes.get(i).getSuccessors().stream()
-                .filter(arc -> arc.getDestination().equals(nodes.get(index + 1)))
+                .filter(arc -> arc.getDestination().equals(compareNode))
                 .min(comparator);
             if (arcmin.isPresent()) {
                 arcs.add(arcmin.get());
