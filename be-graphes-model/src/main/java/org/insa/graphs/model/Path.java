@@ -29,8 +29,23 @@ public class Path {
      */
     public static Path createFastestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
+        if(nodes.size()==1){
+            return new Path(graph,nodes.get(0));
+        }
         List<Arc> arcs = new ArrayList<Arc>();
-        // TODO:
+        for (int i=0;i<nodes.size() - 1 ;i++) {
+            List<Arc> successors = nodes.get(i).getSuccessors();
+            if(successors.size() == 0){
+                throw new IllegalArgumentException("Liste de nodes non valide");
+            }
+            Arc arcmin = successors.get(0);
+            for(Arc arc:successors){
+                if(arc.getMinimumTravelTime() < arcmin.getMinimumTravelTime()){
+                    arcmin = arc;
+                }
+            }
+            arcs.add(arcmin);
+        }
         return new Path(graph, arcs);
     }
 
@@ -47,8 +62,23 @@ public class Path {
      */
     public static Path createShortestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
-        List<Arc> arcs = new ArrayList<Arc>();
-        // TODO:
+                if(nodes.size()==1){
+                    return new Path(graph,nodes.get(0));
+                }
+                List<Arc> arcs = new ArrayList<Arc>();
+                for (int i=0;i<nodes.size() - 1 ;i++) {
+                    List<Arc> successors = nodes.get(i).getSuccessors();
+                    if(successors.size() == 0){
+                        throw new IllegalArgumentException("Liste de nodes non valide");
+                    }
+                    Arc arcmin = successors.get(0);
+                    for(Arc arc:successors){
+                        if(arc.getLength() < arcmin.getLength()){
+                            arcmin = arc;
+                        }
+                    }
+                    arcs.add(arcmin);
+                }
         return new Path(graph, arcs);
     }
 
@@ -187,19 +217,21 @@ public class Path {
      * @deprecated Need to be implemented.
      */
     public boolean isValid() {
-        boolean mybool = false;
-        if (this.arcs.isEmpty() || (this.arcs.size()==1)){
-            mybool = true;
+        if(this.arcs.isEmpty()){
+            return true;
         }
-        else if(this.arcs.get(1).getOrigin().equals(this.origin)){
-            mybool = true;
+        if(this.arcs.size() == 1){
+            return true;
         }
-        for (int i = 1; i < this.arcs.size()-1; i++) {
-            if(this.arcs.get(i).getOrigin().equals(this.arcs.get(i+1).getOrigin())){
-                mybool = true;
+        if(!this.arcs.get(0).getOrigin().equals(this.origin)){
+            return false;
+        }
+        for (int i = 0; i < this.arcs.size()-1; i++) {
+            if(!this.arcs.get(i + 1).getOrigin().equals(this.arcs.get(i).getDestination())){
+                return false;
             }
         }
-        return mybool;
+        return true;
     }
 
     /**
@@ -225,8 +257,7 @@ public class Path {
      * @deprecated Need to be implemented.
      */
     public double getTravelTime(double speed) {
-        // TODO:
-        return 0;
+        return this.getLength()*3.6/speed;
     }
 
     /**
@@ -237,8 +268,11 @@ public class Path {
      * @deprecated Need to be implemented.
      */
     public double getMinimumTravelTime() {
-        // TODO:
-        return 0;
+        double max =0;
+        for (Arc arc : this.arcs) {
+            max += arc.getMinimumTravelTime();
+        }
+        return max;
     }
 
 }
