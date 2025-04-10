@@ -187,8 +187,19 @@ public class Path {
      * @deprecated Need to be implemented.
      */
     public boolean isValid() {
-        // TODO:
-        return false;
+        boolean mybool = false;
+        if (this.arcs.isEmpty() || (this.arcs.size()==1)){
+            mybool = true;
+        }
+        else if(this.arcs.get(1).getOrigin().equals(this.origin)){
+            mybool = true;
+        }
+        for (int i = 1; i < this.arcs.size()-1; i++) {
+            if(this.arcs.get(i).getOrigin().equals(this.arcs.get(i+1).getOrigin())){
+                mybool = true;
+            }
+        }
+        return mybool;
     }
 
     /**
@@ -198,8 +209,11 @@ public class Path {
      * @deprecated Need to be implemented.
      */
     public float getLength() {
-        // TODO:
-        return 0;
+        float len =0;
+        for(Arc arcs : this.arcs){
+            len += arcs.getLength();
+        }
+        return len;
     }
 
     /**
