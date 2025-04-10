@@ -2,7 +2,9 @@ package org.insa.graphs.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <p>
@@ -34,17 +36,15 @@ public class Path {
         }
         List<Arc> arcs = new ArrayList<Arc>();
         for (int i=0;i<nodes.size() - 1 ;i++) {
-            List<Arc> successors = nodes.get(i).getSuccessors();
-            if(successors.size() == 0){
+            int index = i;
+            Optional<Arc> arcmin = nodes.get(i).getSuccessors().stream()
+                .filter(arc -> arc.getDestination().equals(nodes.get(index + 1)))
+                .min(Comparator.comparing(Arc::getMinimumTravelTime));
+            if (arcmin.isPresent()) {
+                arcs.add(arcmin.get());
+            } else {
                 throw new IllegalArgumentException("Liste de nodes non valide");
             }
-            Arc arcmin = successors.get(0);
-            for(Arc arc:successors){
-                if(arc.getMinimumTravelTime() < arcmin.getMinimumTravelTime()){
-                    arcmin = arc;
-                }
-            }
-            arcs.add(arcmin);
         }
         return new Path(graph, arcs);
     }
@@ -67,19 +67,17 @@ public class Path {
                 }
                 List<Arc> arcs = new ArrayList<Arc>();
                 for (int i=0;i<nodes.size() - 1 ;i++) {
-                    List<Arc> successors = nodes.get(i).getSuccessors();
-                    if(successors.size() == 0){
+                    int index = i;
+                    Optional<Arc> arcmin = nodes.get(i).getSuccessors().stream()
+                        .filter(arc -> arc.getDestination().equals(nodes.get(index + 1)))
+                        .min(Comparator.comparing(Arc::getLength));
+                    if (arcmin.isPresent()) {
+                        arcs.add(arcmin.get());
+                    } else {
                         throw new IllegalArgumentException("Liste de nodes non valide");
                     }
-                    Arc arcmin = successors.get(0);
-                    for(Arc arc:successors){
-                        if(arc.getLength() < arcmin.getLength()){
-                            arcmin = arc;
-                        }
-                    }
-                    arcs.add(arcmin);
                 }
-        return new Path(graph, arcs);
+                return new Path(graph, arcs);
     }
 
     /**
