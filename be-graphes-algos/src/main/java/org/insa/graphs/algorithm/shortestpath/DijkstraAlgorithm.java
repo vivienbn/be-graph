@@ -34,8 +34,12 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         
         // Création de la solution
         Label [] labelsList = getLabelsListOrderedWithDijkstra(graph, originLabel, destinationLabel, data);
-        Path bestPath = getShortestPathFromLabels(labelsList, graph, originLabel, destinationLabel);
-        solution = new ShortestPathSolution(data, Status.OPTIMAL, bestPath);
+        if (labelsList[data.getDestination().getId()] == null) {
+            solution = new ShortestPathSolution(data, Status.INFEASIBLE);
+        } else {
+            Path bestPath = getShortestPathFromLabels(labelsList, graph, originLabel, destinationLabel);
+            solution = new ShortestPathSolution(data, Status.OPTIMAL, bestPath);    
+        }
 
         // when the algorithm terminates, return the solution that has been found
         return solution;
@@ -54,11 +58,15 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         // Boucle d'actualisation des labels
         Label minHeapLabel = originLabel;
         while(!labelsHeap.isEmpty() && !destinationLabel.isVisited()){
+            // Mise à jour du tas et du sommet courant
             minHeapLabel = labelsHeap.deleteMin();
-            Node originNode = minHeapLabel.getSommetCourant();
             minHeapLabel.visit();
+
+            // Récupération du sommet courant
+            Node originNode = minHeapLabel.getSommetCourant();
             notifyNodeReached(originNode);
 
+            // Mise à jour des sommets voisins
             for(Arc arc:originNode.getSuccessors()){
                 int destinationNodeId = arc.getDestination().getId();
                 // Lazy loading
