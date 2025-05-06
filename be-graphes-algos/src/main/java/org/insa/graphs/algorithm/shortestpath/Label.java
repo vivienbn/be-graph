@@ -35,7 +35,7 @@ public class Label implements Comparable<Label>{
         return this.sommetCourant;
     }
 
-    public boolean getMarque(){
+    public boolean isVisited(){
         return this.marque;
     }
 
@@ -59,13 +59,24 @@ public class Label implements Comparable<Label>{
         this.coutCourant = nouveauCout;
     }
 
-    public void marqueLabel(){
+    public void visit(){
         this.marque = true;
     }
 
     @Override
     public int compareTo(Label other) {
         return Double.compare(this.getCost(), other.getCost());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (other instanceof Label) {
+            return getSommetCourant().equals(((Label) other).getSommetCourant());
+        }
+        return false;
     }
 
 }
