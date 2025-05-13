@@ -1,4 +1,5 @@
 package org.insa.graphs.algorithm.shortestpath;
+import org.insa.graphs.algorithm.AbstractInputData.Mode;
 import org.insa.graphs.algorithm.AbstractSolution.Status;
 import org.insa.graphs.algorithm.utils.BinaryHeap;
 import org.insa.graphs.model.Arc;
@@ -34,7 +35,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         
         // Création de la solution
         Label [] labelsList = getLabelsListOrderedWithDijkstra(graph, originLabel, destinationLabel, data);
-        if (labelsList[data.getDestination().getId()] == null) {
+        if (labelsList[data.getDestination().getId()].getPere() == null) {
             solution = new ShortestPathSolution(data, Status.INFEASIBLE);
         } else {
             Path bestPath = getShortestPathFromLabels(labelsList, graph, originLabel, destinationLabel);
@@ -71,7 +72,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                 int destinationNodeId = arc.getDestination().getId();
                 // Lazy loading
                 if(labelsList[destinationNodeId] == null){
-                    labelsList[destinationNodeId] = new Label(arc.getDestination(), arc.getLength());
+                    labelsList[destinationNodeId] = new Label(arc.getDestination());
                 }
 
                 // Selection du label en cours d'actualisation
@@ -106,6 +107,11 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
             currentLabel = labels[currentLabel.getPere().getId()];
         }
         Collections.reverse(shortestPath);
-        return Path.createShortestPathFromNodes(graph, shortestPath);
+        if(data.getMode().equals(Mode.LENGTH)){
+            return Path.createShortestPathFromNodes(graph, shortestPath);
+        } else {
+            return Path.createFastestPathFromNodes(graph, shortestPath);
+        }
+
     }
 }

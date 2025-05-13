@@ -1,0 +1,31 @@
+Définissez plusieurs scénarios. Chaque scénario est défini par :
+
+    une carte (tester des cartes routières et non routières)
+    la nature du coût (tester en distance et en temps)
+    une origine et une destination (tester plusieurs valeurs)
+
+Les scénarios doivent être convaincants et représentatifs des situations pouvant arriver (chemin inexistant, chemin de longueur nulle, trajet court, trajet long et pénible avec des enfants, ...).
+
+Sur ces scénarios, vérifier que le chemin construit par votre algo est valide.
+
+Vérifiez aussi que le coût du chemin calculé par Dijkstra est bien le même que celui calculé par la classe Path. Depuis la 1A vous savez qu'on ne compare pas deux réels avec ==.
+
+Sur les petits scénarios, vérifiez que vous obtenez les mêmes résultats qu'avec Bellman-Ford (que faut-il tester ?)
+
+Sur les scénarios plus grands, Bellman-Ford sera inutilisable. Réfléchissez à quelques tests automatiques que vous pouvez tout de même effectuer pour vous rassurer sur le chemin trouvé.
+
+Concevez vos tests de manière modulaire : vous les ré-utiliserez pour A-star.
+
+
+Trajet court sur route :
+
+Trajet court hors route :
+
+Trajet le plus rapide sur route :
+
+Trajet le plus rapide hors route :
+
+Trajet impossible :
+
+Chemin de longueuer nulle : 
+
