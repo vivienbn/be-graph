@@ -28,7 +28,7 @@ public class Label implements Comparable<Label>{
 
 
    public double getCost(){
-    return this.getCoutCourant();
+    return this.coutCourant;
    }
 
     public Node getSommetCourant(){
@@ -65,7 +65,7 @@ public class Label implements Comparable<Label>{
 
     @Override
     public int compareTo(Label other) {
-        return Double.compare(this.getCost(), other.getCost());
+        return Double.compare(this.getCoutCourant(), other.getCoutCourant());
     }
 
     @Override

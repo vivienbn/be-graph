@@ -14,9 +14,27 @@ import java.util.Collections;
 
 public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 
+
     public DijkstraAlgorithm(ShortestPathData data) {
         super(data);
     }
+
+    protected Label setLabel(Arc arc) {
+        return  new Label(arc.getDestination());
+    }
+
+    protected Label setLabel(Node node, Double cout) {
+        return  new Label(node, cout);
+    }
+
+    protected Label setLabel(Node node) {
+        return  new Label(node);
+    }
+
+    protected boolean updateLabel(Label currentLabel, Label minHeapLabel, Arc arc){
+        return currentLabel.getCoutCourant() > minHeapLabel.getCoutCourant() + data.getCost(arc);
+    }
+    
 
     @Override
     protected ShortestPathSolution doRun() {
@@ -27,14 +45,14 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         Graph graph = data.getGraph();
 
         // Création des labels points de départ et arrivée
-        Label destinationLabel = new Label(data.getDestination());
-        Label originLabel = new Label(data.getOrigin(), 0);
+        Label destinationLabel = setLabel(data.getDestination());
+        Label originLabel = setLabel(data.getOrigin(), 0.0);
 
         // variable that will contain the solution of the shortest path problem
         ShortestPathSolution solution = null;
         
         // Création de la solution
-        Label [] labelsList = getLabelsListOrderedWithDijkstra(graph, originLabel, destinationLabel, data);
+        Label [] labelsList = this.getLabelsListOrderedWithDijkstra(graph, originLabel, destinationLabel, data);
         if (labelsList[data.getDestination().getId()].getPere() == null) {
             solution = new ShortestPathSolution(data, Status.INFEASIBLE);
         } else {
@@ -72,14 +90,16 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                 int destinationNodeId = arc.getDestination().getId();
                 // Lazy loading
                 if(labelsList[destinationNodeId] == null){
-                    labelsList[destinationNodeId] = new Label(arc.getDestination());
+                    labelsList[destinationNodeId] = this.setLabel(arc);
                 }
 
                 // Selection du label en cours d'actualisation
                 Label currentLabel = labelsList[destinationNodeId];
 
                 if(!currentLabel.isVisited() && data.isAllowed(arc)){
-                    currentLabel.setCoutCourant(Math.min(currentLabel.getCoutCourant(), minHeapLabel.getCoutCourant() + data.getCost(arc)));
+                    if(this.updateLabel(currentLabel, minHeapLabel, arc)){
+                        currentLabel.setCoutCourant(minHeapLabel.getCost() + data.getCost(arc));
+                    }
 
                     if(!(currentLabel.getPere() == null)){
                         labelsHeap.remove(currentLabel);
@@ -93,7 +113,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         return labelsList;
     }
 
-    private Path getShortestPathFromLabels (Label [] labels, Graph graph, Label originLabel, Label destinationLabel){
+    private Path getShortestPathFromLabels (Label [] labelsList, Graph graph, Label originLabel, Label destinationLabel){
         // Initialisation des structures de donnée
         ArrayList<Node> shortestPath = new ArrayList<>();
 
@@ -104,7 +124,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
             if (currentLabel.equals(originLabel)) {
                 break;
             }
-            currentLabel = labels[currentLabel.getPere().getId()];
+            currentLabel = labelsList[currentLabel.getPere().getId()];
         }
         Collections.reverse(shortestPath);
         if(data.getMode().equals(Mode.LENGTH)){

@@ -28,7 +28,7 @@ public final class Point {
         double koef = sinLat + cosLat * cosLong;
 
         if (koef >= 1.0) {
-            koef = 1.0;
+            koef = 1.0; 
         }
         if (koef <= -1.0) {
             koef = -1.0;
