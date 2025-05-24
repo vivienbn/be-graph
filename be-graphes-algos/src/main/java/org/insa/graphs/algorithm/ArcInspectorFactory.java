@@ -110,39 +110,6 @@ public class ArcInspectorFactory {
         }
     };
 
-    private static class OnlyPedestrianByLength implements ArcInspector {
-
-
-
-        @Override
-        public boolean isAllowed(Arc arc) {
-            return arc.getRoadInformation().getAccessRestrictions().isAllowedForAny(
-                    AccessMode.FOOT,
-                    EnumSet.complementOf(EnumSet.of(AccessRestriction.FORBIDDEN,
-                            AccessRestriction.PRIVATE)));
-        }
-
-        @Override
-        public double getCost(Arc arc) {
-            return arc.getLength();
-        }
-
-        @Override
-        public String toString() {
-            return "Fastest path for pedestrian";
-        }
-
-        @Override
-        public int getMaximumSpeed() {
-            return  GraphStatistics.NO_MAXIMUM_SPEED;
-        }
-
-        @Override
-        public Mode getMode() {
-            return Mode.LENGTH;
-        }
-    };
-
     /**
      * @return List of all arc filters in this factory.
      */
@@ -151,7 +118,7 @@ public class ArcInspectorFactory {
         // to get an understandable output!):
         return Arrays.asList(new NoFilterByLengthArcInspector(),
                 new OnlyCarsByLengthArcInspector(), new OnlyCarsByTimeArcInspector(),
-                new OnlyPedestrianByTime(), new OnlyPedestrianByLength());
+                new OnlyPedestrianByTime());
     }
 
 }
