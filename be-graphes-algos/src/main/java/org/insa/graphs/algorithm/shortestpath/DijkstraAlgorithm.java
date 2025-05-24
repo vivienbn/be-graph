@@ -1,5 +1,4 @@
 package org.insa.graphs.algorithm.shortestpath;
-import org.insa.graphs.algorithm.AbstractInputData.Mode;
 import org.insa.graphs.algorithm.AbstractSolution.Status;
 import org.insa.graphs.algorithm.utils.BinaryHeap;
 import org.insa.graphs.model.Arc;
@@ -31,7 +30,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         return  new Label(node);
     }
 
-    protected boolean updateLabel(Label currentLabel, Label minHeapLabel, Arc arc){
+    protected boolean needUpdate(Label currentLabel, Label minHeapLabel, Arc arc){
         return currentLabel.getCoutCourant() > minHeapLabel.getCoutCourant() + data.getCost(arc);
     }
     
@@ -43,30 +42,20 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         // parent class ShortestPathAlgorithm)
         final ShortestPathData data = getInputData();
         Graph graph = data.getGraph();
+        int nbNodes = graph.size();
 
         // Création des labels points de départ et arrivée
         Label destinationLabel = setLabel(data.getDestination());
         Label originLabel = setLabel(data.getOrigin(), 0.0);
 
-        // variable that will contain the solution of the shortest path problem
-        ShortestPathSolution solution = null;
-        
-        // Création de la solution
-        Label [] labelsList = this.getLabelsListOrderedWithDijkstra(graph, originLabel, destinationLabel, data);
-        if (labelsList[data.getDestination().getId()].getPere() == null) {
-            solution = new ShortestPathSolution(data, Status.INFEASIBLE);
-        } else {
-            Path bestPath = getShortestPathFromLabels(labelsList, graph, originLabel, destinationLabel);
-            solution = new ShortestPathSolution(data, Status.OPTIMAL, bestPath);    
+        // verification de la distinction du départ et de l'arrivée
+        if(destinationLabel.equals(originLabel)){
+            return new ShortestPathSolution(data, Status.OPTIMAL, new Path(graph, data.getOrigin()));
         }
-
-        // when the algorithm terminates, return the solution that has been found
-        return solution;
-    }
-
-    private Label [] getLabelsListOrderedWithDijkstra(Graph graph, Label originLabel, Label destinationLabel, ShortestPathData data){
-        // Init de nos structures de labels
-        Label [] labelsList = new Label[graph.size()];
+        
+        //New DijkstraAlgo
+        Arc[] predecessorArcs = new Arc[nbNodes];
+        Label [] labelsList = new Label[nbNodes];
         BinaryHeap<Label> labelsHeap = new BinaryHeap<Label>();
 
         // Initialisation des données dans les structures
@@ -88,7 +77,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
             // Mise à jour des sommets voisins
             for(Arc arc:originNode.getSuccessors()){
                 int destinationNodeId = arc.getDestination().getId();
-                // Lazy loading
+                // Lazy initializing
                 if(labelsList[destinationNodeId] == null){
                     labelsList[destinationNodeId] = this.setLabel(arc);
                 }
@@ -97,8 +86,9 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                 Label currentLabel = labelsList[destinationNodeId];
 
                 if(!currentLabel.isVisited() && data.isAllowed(arc)){
-                    if(this.updateLabel(currentLabel, minHeapLabel, arc)){
-                        currentLabel.setCoutCourant(minHeapLabel.getCost() + data.getCost(arc));
+                    if(this.needUpdate(currentLabel, minHeapLabel, arc)){
+                        currentLabel.setCoutCourant(minHeapLabel.getCoutCourant() + data.getCost(arc));
+                        predecessorArcs[destinationNodeId] = arc;
                     }
 
                     if(!(currentLabel.getPere() == null)){
@@ -110,28 +100,26 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
             }
         }
         notifyDestinationReached(destinationLabel.getSommetCourant());
-        return labelsList;
-    }
 
-    private Path getShortestPathFromLabels (Label [] labelsList, Graph graph, Label originLabel, Label destinationLabel){
-        // Initialisation des structures de donnée
-        ArrayList<Node> shortestPath = new ArrayList<>();
-
-        // Création du Path en lisant les labels en partant de la destination et en remontant les predecesseurs
-        Label currentLabel = destinationLabel;
-        while (currentLabel != null) {
-            shortestPath.add(currentLabel.getSommetCourant());
-            if (currentLabel.equals(originLabel)) {
-                break;
-            }
-            currentLabel = labelsList[currentLabel.getPere().getId()];
-        }
-        Collections.reverse(shortestPath);
-        if(data.getMode().equals(Mode.LENGTH)){
-            return Path.createShortestPathFromNodes(graph, shortestPath);
+        if (predecessorArcs[data.getDestination().getId()] == null) {
+                return new ShortestPathSolution(data, Status.INFEASIBLE);
         } else {
-            return Path.createFastestPathFromNodes(graph, shortestPath);
-        }
+            // The destination has been found, notify the observers.
+            notifyDestinationReached(data.getDestination());
 
+            // Create the path from the array of predecessors...
+            ArrayList<Arc> arcs = new ArrayList<>();
+            Arc arc = predecessorArcs[data.getDestination().getId()];
+            while (arc != null) {
+                arcs.add(arc);
+                arc = predecessorArcs[arc.getOrigin().getId()];
+            }
+
+            // Reverse the path...
+            Collections.reverse(arcs);
+
+            // Create the final solution.
+            return new ShortestPathSolution(data, Status.OPTIMAL, new Path(graph, arcs));
+        }
     }
 }

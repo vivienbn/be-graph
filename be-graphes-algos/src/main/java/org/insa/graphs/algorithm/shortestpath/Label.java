@@ -1,8 +1,5 @@
 package org.insa.graphs.algorithm.shortestpath;
-
 import java.util.Optional;
-
-import org.insa.graphs.model.Arc;
 import org.insa.graphs.model.Node;
 
 public class Label implements Comparable<Label>{
@@ -27,9 +24,9 @@ public class Label implements Comparable<Label>{
    }
 
 
-   public double getCost(){
-    return this.coutCourant;
-   }
+    public double getCost(){
+        return this.getCoutCourant();
+    }
 
     public Node getSommetCourant(){
         return this.sommetCourant;
@@ -65,7 +62,7 @@ public class Label implements Comparable<Label>{
 
     @Override
     public int compareTo(Label other) {
-        return Double.compare(this.getCoutCourant(), other.getCoutCourant());
+        return Double.compare(this.getCost(), other.getCost());
     }
 
     @Override

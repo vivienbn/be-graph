@@ -4,29 +4,37 @@ import org.insa.graphs.model.Point;
 
 public class LabelStar extends Label {
 
-    private double coutHeuristique;
     private double distHeuristique;
 
     public LabelStar(Node sommetCourant, Node dest) {
         super(sommetCourant);
         this.distHeuristique = Point.distance(sommetCourant.getPoint(), dest.getPoint());
-        this.setCoutCourant(0);
     }
 
     public LabelStar(Node sommetCourant, Node dest, double cout) {
         super(sommetCourant, cout);
         this.distHeuristique = Point.distance(sommetCourant.getPoint(), dest.getPoint());
-        this.setCoutCourant(cout);
+    }
+
+    public double getDistHeuristique(){
+        return this.distHeuristique;
     }
 
     @Override
-    public void setCoutCourant(double cout) {
-        super.setCoutCourant(cout);
-        this.coutHeuristique =  this.distHeuristique + cout;
+    public double getCost() {
+        return this.distHeuristique + this.getCoutCourant();
     }
 
     @Override
-    public double getCoutCourant() {
-        return this.coutHeuristique;
+    public int compareTo(Label other) {
+        int result = super.compareTo(other);
+
+        // Gestion de l'égalité
+        if (result == 0 && other instanceof LabelStar) {
+            LabelStar otherStar = (LabelStar) other;
+            return Double.compare(this.getDistHeuristique(), otherStar.getDistHeuristique());
+        }
+
+        return result;
     }
 }

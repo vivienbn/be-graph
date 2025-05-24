@@ -1,8 +1,6 @@
 package org.insa.graphs.algorithm.shortestpath;
-
 import org.insa.graphs.model.Arc;
 import org.insa.graphs.model.Node;
-import org.insa.graphs.model.Point;
 
 public class AStarAlgorithm extends DijkstraAlgorithm {
 
@@ -28,8 +26,4 @@ public class AStarAlgorithm extends DijkstraAlgorithm {
         return  new LabelStar(node, this.destination);
     }
 
-    @Override
-    protected boolean updateLabel(Label currentLabel, Label minHeapLabel, Arc arc){
-        return currentLabel.getCoutCourant() < minHeapLabel.getCost() + data.getCost(arc) + Point.distance(arc.getDestination().getPoint(), this.destination.getPoint());
-    }
 }
