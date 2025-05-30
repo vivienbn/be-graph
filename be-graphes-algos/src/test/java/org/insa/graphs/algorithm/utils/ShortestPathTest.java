@@ -98,4 +98,6 @@ public class ShortestPathTest {
         DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(data);
         assertEquals(dijkstra.run().getPath().getMinimumTravelTime(), paths.get(0).getMinimumTravelTime(), 0.0001);
     }
+
+    @Test
 }
