@@ -23,7 +23,7 @@ import org.insa.graphs.model.io.PathReader;
 import org.junit.Before;
 import org.junit.Test;
 
-
+// V1 de test, exhaustive et descriptive
 public class ShortestPathTest {
 
     private enum FileType {

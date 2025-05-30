@@ -7,11 +7,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.insa.graphs.algorithm.ArcInspector;
 import org.insa.graphs.algorithm.ArcInspectorFactory;
-import org.insa.graphs.algorithm.AbstractSolution.Status;
+import org.insa.graphs.algorithm.AbstractInputData.Mode;
+import org.insa.graphs.algorithm.AbstractSolution;
+import org.insa.graphs.algorithm.ArcInspector;
 import org.insa.graphs.algorithm.shortestpath.BellmanFordAlgorithm;
-import org.insa.graphs.algorithm.shortestpath.DijkstraAlgorithm;
+import org.insa.graphs.algorithm.shortestpath.ShortestPathAlgorithm;
 import org.insa.graphs.algorithm.shortestpath.ShortestPathData;
 import org.insa.graphs.model.Graph;
 import org.insa.graphs.model.Node;
@@ -21,7 +22,6 @@ import org.insa.graphs.model.io.BinaryPathReader;
 import org.insa.graphs.model.io.GraphReader;
 import org.insa.graphs.model.io.PathReader;
 import org.junit.Before;
-import org.junit.Test;
 
 
 public abstract class AbstractShortestPathAlgorithmTest {
@@ -33,7 +33,7 @@ public abstract class AbstractShortestPathAlgorithmTest {
 
     private double getPathCostByMode(Path path, Mode mode){
         if(mode == Mode.TIME){
-            return path.getMinimuTravelTime();
+            return path.getMinimumTravelTime();
         }
         return path.getLength();
     }
@@ -55,28 +55,27 @@ public abstract class AbstractShortestPathAlgorithmTest {
         }
     }
 
-    protected void testPathWithArcInspector(int arcInspectorIndex, Mode mode) {
+    protected void testPathWithArcInspector(ArcInspector inspector) {
         Node origin = this.paths.get(1).getOrigin();
         Node dest = this.paths.get(1).getDestination();
-        ShortestPathData data = new ShortestPathData(graph, origin, dest,
-                                                      ArcInspectorFactory.getAllFilters().get(arcInspectorIndex));
+        ShortestPathData data = new ShortestPathData(graph, origin, dest, inspector);
 
-        Path referencePath = New BellmanFordAlgorithm(data).run().getPath();
+        Path referencePath = new BellmanFordAlgorithm(data).run().getPath();
         ShortestPathAlgorithm algo = createAlgorithm(data);
         Path result = algo.run().getPath();
-        assertEquals(getPathCostByMode(referencePath, mode), getPathCostByMode(result, mode), 0.0001);;
+        assertEquals(getPathCostByMode(referencePath, inspector.getMode()), getPathCostByMode(result, inspector.getMode()), 0.0001);;
     }
 
-    protected void testInfeasiblePath(Node origin, Node dest, int arcInspectorIndex) {
-        ShortestPathData data = new ShortestPathData(graph, origin, dest, ArcInspectorFactory.getAllFilters().get(arcInspectorIndex));
+    protected void testInfeasiblePath(Node origin, Node dest) {
+        ShortestPathData data = new ShortestPathData(graph, origin, dest, ArcInspectorFactory.getAllFilters().get(0));
         ShortestPathAlgorithm algo = createAlgorithm(data);
         assertEquals(AbstractSolution.Status.INFEASIBLE, algo.run().getStatus());
     }
 
-    protected void testSameOriginDestination(Node node, Mode mode) {
-        ShortestPathData data = new ShortestPathData(graph, node, node, ArcInspectorFactory.getAllFilters().get(0));
+    protected void testSameOriginDestination(Node node, ArcInspector inspector) {
+        ShortestPathData data = new ShortestPathData(graph, node, node, inspector);
         ShortestPathAlgorithm algo = createAlgorithm(data);
-        assertEquals(0.0, getPathCostByMode(algo.run().getPath(), mode), 0.0001);
+        assertEquals(0.0, getPathCostByMode(algo.run().getPath(), inspector.getMode()), 0.0001);
     }
 
     // Utils
