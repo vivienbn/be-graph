@@ -94,7 +94,7 @@ public class ShortestPathTest {
     public void testDijkstraFastest() {
         Node dest = paths.get(1).getDestination();
         Node origin = paths.get(1).getOrigin();
-        ShortestPathData data = new ShortestPathData(this.graph, origin, dest, ArcInspectorFactory.getAllFilters().get(2));
+        ShortestPathData data = new ShortestPathData(this.graph, origin, dest, ArcInspectorFactory.getAllFilters().get(3));
         DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(data);
         assertEquals(dijkstra.run().getPath().getMinimumTravelTime(), paths.get(0).getMinimumTravelTime(), 0.0001);
     }
