@@ -31,7 +31,7 @@ public class ShortestPathTest {
     private static final String TYPE_PATH_EXTENSION = ".path";
     private static final String TYPE_GRAPH_FILE_PATH = "../be-graphes-data-for-tests/map/";
     private static final String TYPE_GRAPH_EXTENSION = ".mapgr";
-    private static final String [] PATHS_NAME = {"BF_shortest_all_roads", "BF_fastest_all_roads"};
+    private static final String [] PATHS_NAME = {"BF_shortest_all_roads", "BF_fastest_all_roads", "BF_shortest_only_cars", "BF_fastest_only_pedestrians"};
 
     private static String getFileName(String name, FileType type) throws IOException{
         File mapFile = null;
@@ -80,9 +80,12 @@ public class ShortestPathTest {
 
         }
     }
-    
+
+
+    //Tests for the dijkstra algorithm
+    //------------------------------------------------------------------------tests by length-----------------------------------------------------------------
     @Test
-    public void testDijkstraShortest() {
+    public void testDijkstraShortestallroads() {
         Node dest = paths.get(0).getDestination();
         Node origin = paths.get(0).getOrigin();
         ShortestPathData data = new ShortestPathData(this.graph, origin, dest, ArcInspectorFactory.getAllFilters().get(0));
@@ -90,14 +93,54 @@ public class ShortestPathTest {
         assertEquals(dijkstra.run().getPath().getLength(), paths.get(0).getLength(), 0.0001);
     }
 
+    @Test 
+    public void testDijkstraShortestOnlyCars(){
+        Node dest = paths.get(2).getDestination();
+        Node origin = paths.get(2).getOrigin();
+        ShortestPathData data = new ShortestPathData(this.graph, origin, dest, ArcInspectorFactory.getAllFilters().get(1));
+        DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(data);
+        Path path = dijkstra.run().getPath();
+        assertEquals(path.getLength(), paths.get(2).getLength(), 0.0001);        
+    }
+
     @Test
-    public void testDijkstraFastest() {
+    public void testDijkstraShortestImpossible() { //here we chosed on purpose 2 points that are not connected (16280, 14983 which are on different islands)
+        Node dest = graph.getNodes().get(14983);
+        Node origin = graph.getNodes().get(16278);
+        ShortestPathData data = new ShortestPathData(this.graph, origin, dest, ArcInspectorFactory.getAllFilters().get(0));
+        DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(data);
+        Path path = dijkstra.run().getPath();
+        assertEquals(path, null);
+    }
+
+    //------------------------------------------------------------------------tests by time-------------------------------------------------------------------
+    @Test
+    public void testDijkstraFastestallroads() {
         Node dest = paths.get(1).getDestination();
         Node origin = paths.get(1).getOrigin();
         ShortestPathData data = new ShortestPathData(this.graph, origin, dest, ArcInspectorFactory.getAllFilters().get(2));
         DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(data);
-        assertEquals(dijkstra.run().getPath().getMinimumTravelTime(), paths.get(0).getMinimumTravelTime(), 0.0001);
+        Path path = dijkstra.run().getPath();
+        assertEquals(path.getMinimumTravelTime(), paths.get(1).getMinimumTravelTime(), 0.0001);
     }
 
     @Test
+    public void testDijkstraFastestOnlyPedestrians() {
+        Node dest = paths.get(3).getDestination();
+        Node origin = paths.get(3).getOrigin();
+        ShortestPathData data = new ShortestPathData(this.graph, origin, dest, ArcInspectorFactory.getAllFilters().get(3));
+        DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(data);
+        Path path = dijkstra.run().getPath();
+        assertEquals(path.getMinimumTravelTime(), paths.get(3).getMinimumTravelTime(), 0.0001);
+    }
+    
+    @Test
+    public void testDijkstraFastestOriginEqualsDestination() { 
+        Node dest = graph.getNodes().get(14301);
+        Node origin = graph.getNodes().get(14301);
+        ShortestPathData data = new ShortestPathData(this.graph, origin, dest, ArcInspectorFactory.getAllFilters().get(0));
+        DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(data);
+        Path path = dijkstra.run().getPath();
+        assertEquals(path.getLength(), 0, 0.0001);
+    }
 }
