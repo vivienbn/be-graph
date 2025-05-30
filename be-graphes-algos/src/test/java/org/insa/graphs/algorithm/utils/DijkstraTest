@@ -1,0 +1,32 @@
+package org.insa.graphs.algorithm.utils;
+import org.insa.graphs.algorithm.shortestpath.*;
+import org.insa.graphs.model.*;
+import org.junit.Test;
+
+public class DijkstraTest extends AbstractShortestPathAlgorithmTest {
+
+    @Override
+    protected ShortestPathAlgorithm createAlgorithm(ShortestPathData data) {
+        return new DijkstraAlgorithm(data);
+    }
+
+    @Test
+    public void testShortestAllRoads() {
+        testPathLengthAgainstReference(paths.get(0), 0);
+    }
+
+    @Test
+    public void testFastestOnlyPedestrians() {
+        testPathLengthAgainstReference(paths.get(3), 3);
+    }
+
+    @Test
+    public void testImpossiblePath() {
+        testInfeasiblePath(graph.getNodes().get(16278), graph.getNodes().get(14983), 0);
+    }
+
+    @Test
+    public void testSameNode() {
+        testSameOriginDestination(graph.getNodes().get(14301));
+    }
+}

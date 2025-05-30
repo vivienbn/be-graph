@@ -6,7 +6,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import org.insa.graphs.algorithm.ArcInspector;
 import org.insa.graphs.algorithm.ArcInspectorFactory;
+import org.insa.graphs.algorithm.AbstractSolution.Status;
+import org.insa.graphs.algorithm.shortestpath.BellmanFordAlgorithm;
 import org.insa.graphs.algorithm.shortestpath.DijkstraAlgorithm;
 import org.insa.graphs.algorithm.shortestpath.ShortestPathData;
 import org.insa.graphs.model.Graph;
@@ -47,7 +51,7 @@ public class ShortestPathTest {
                 break;
         }
 
-        File currentDir = new File("."); // = ./ (répertoire de travail)
+        File currentDir = new File(".");
         String basePath = currentDir.getCanonicalPath();
         mapFile = new File(basePath, relativPath);
         return mapFile.getCanonicalPath();
@@ -85,7 +89,7 @@ public class ShortestPathTest {
     //Tests for the dijkstra algorithm
     //------------------------------------------------------------------------tests by length-----------------------------------------------------------------
     @Test
-    public void testDijkstraShortestallroads() {
+    public void testDijkstraShortestPathallroads() {
         Node dest = paths.get(0).getDestination();
         Node origin = paths.get(0).getOrigin();
         ShortestPathData data = new ShortestPathData(this.graph, origin, dest, ArcInspectorFactory.getAllFilters().get(0));
@@ -104,13 +108,12 @@ public class ShortestPathTest {
     }
 
     @Test
-    public void testDijkstraShortestImpossible() { //here we chosed on purpose 2 points that are not connected (16280, 14983 which are on different islands)
+    public void testDijkstraImpossiblePath() { //here we chosed on purpose 2 points that are not connected (16280, 14983 which are on different islands)
         Node dest = graph.getNodes().get(14983);
         Node origin = graph.getNodes().get(16278);
         ShortestPathData data = new ShortestPathData(this.graph, origin, dest, ArcInspectorFactory.getAllFilters().get(0));
         DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(data);
-        Path path = dijkstra.run().getPath();
-        assertEquals(path, null);
+        assertEquals(dijkstra.run().getStatus(), Status.INFEASIBLE);
     }
 
     //------------------------------------------------------------------------tests by time-------------------------------------------------------------------
@@ -120,8 +123,10 @@ public class ShortestPathTest {
         Node origin = paths.get(1).getOrigin();
         ShortestPathData data = new ShortestPathData(this.graph, origin, dest, ArcInspectorFactory.getAllFilters().get(3));
         DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(data);
+        BellmanFordAlgorithm bellmanFord = new BellmanFordAlgorithm(data);
         Path path = dijkstra.run().getPath();
-        assertEquals(path.getMinimumTravelTime(), paths.get(1).getMinimumTravelTime(), 0.0001);
+        Path pathBF = bellmanFord.run().getPath();
+        assertEquals(path.getMinimumTravelTime(), pathBF.getMinimumTravelTime(), 0.0001);
     }
 
     @Test
@@ -142,5 +147,21 @@ public class ShortestPathTest {
         DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(data);
         Path path = dijkstra.run().getPath();
         assertEquals(path.getLength(), 0, 0.0001);
+    }
+
+    //----------------------------------------------------Generic Test------------------------------------------------------------------
+    @Test
+    public void testLenghtTimeAllArcsInspectors(){
+        Node origin = paths.get(1).getOrigin();
+        Node dest = paths.get(1).getDestination();
+        for(ArcInspector inspector:ArcInspectorFactory.getAllFilters()){
+            ShortestPathData data = new ShortestPathData(this.graph, origin, dest, inspector);
+            BellmanFordAlgorithm bellmanFord = new BellmanFordAlgorithm(data);
+            DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(data);
+            Path dijkstraPath = dijkstra.run().getPath();
+            Path bellmanFordPath = bellmanFord.run().getPath();
+            assertEquals(bellmanFordPath.getLength(), dijkstraPath.getLength(), 0.0001);
+            assertEquals(bellmanFordPath.getMinimumTravelTime(), dijkstraPath.getMinimumTravelTime(), 0.0001);
+        }
     }
 }
