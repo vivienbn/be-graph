@@ -151,7 +151,7 @@ public class ShortestPathTest {
 
     //----------------------------------------------------Generic Test------------------------------------------------------------------
     @Test
-    public void testLenghtTimeAllArcsInspectors(){
+    public void testShortestPathAllVehicules(){
         Node origin = paths.get(1).getOrigin();
         Node dest = paths.get(1).getDestination();
         for(ArcInspector inspector:ArcInspectorFactory.getAllFilters()){
