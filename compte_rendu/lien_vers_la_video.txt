@@ -27,5 +27,5 @@ Trajet le plus rapide hors route :
 
 Trajet impossible :
 
-Chemin de longueuer nulle : 
+Chemin de longueur nulle : 
 
